@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 
-const useBookList = () => {
+const useHttp = (url, mapper) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [bookList, setBookList] = useState([]);
-
-  const url = 'api/Book/BookList';
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         const response = await fetch(url);
-        const data = await response.json();
-        setBookList(data);
+        const result = await response.json();
+        let mappedResult = result;
+        if (mapper) {
+          mappedResult = mapper(result);
+        }
+        setData(mappedResult);
       } catch (e) {
         setError(e);
       }
@@ -21,7 +23,7 @@ const useBookList = () => {
     })();
   }, [url]);
 
-  return [error, loading, bookList];
+  return [error, loading, data];
 };
 
-export default useBookList;
+export default useHttp;

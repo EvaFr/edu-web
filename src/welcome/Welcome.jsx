@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import useBookList from './useBookList';
+import useHttp from '../hooks/use-http';
+import Error from '../components/Error';
 
 const showLoader = loading => (loading ? <p>Loading</p> : <p />);
 
@@ -12,32 +13,13 @@ const renderBooks = books =>
     </li>
   ));
 
-const showError = error => {
-  if (process.env.NODE_ENV === 'production') {
-    return (
-      <>
-        An error occured while loading this page. The error is logged and we
-        will fix it ASAP!
-      </>
-    );
-  }
-
-  return (
-    <>
-      <p>Error: {error.name}</p>
-      <p>Message: {error.message}</p>
-      <p>Stack: {error.stack}</p>
-    </>
-  );
-};
-
 const Welcome = () => {
-  const [error, loading, bookList] = useBookList();
+  const [error, loading, bookList] = useHttp('api/Book/BookList');
 
   return (
     <>
       {showLoader(loading)}
-      {error ? showError(error) : <ul>{renderBooks(bookList.books)}</ul>}
+      {error ? <Error error={error} /> : <ul>{renderBooks(bookList.books)}</ul>}
     </>
   );
 };
