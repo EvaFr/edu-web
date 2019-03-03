@@ -1,11 +1,12 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import Welcome from './welcome/Welcome';
 
 const App = () => {
   return (
-    <div>
+    <BrowserRouter>
       <Welcome />
-    </div>
+    </BrowserRouter>
   );
 };
 
