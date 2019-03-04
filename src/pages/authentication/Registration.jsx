@@ -5,12 +5,13 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 import Loader from '../../components/Loader';
 
-const isValid = ({ userName, password }) => {
+const isValid = ({ userName, password }, confirmPassword) => {
   if (
     userName != null &&
     userName.length > 0 &&
     password != null &&
-    password.length > 0
+    password.length > 0 &&
+    password === confirmPassword
   ) {
     return true;
   }
@@ -18,20 +19,20 @@ const isValid = ({ userName, password }) => {
   return false;
 };
 
-const login = (
+const register = (
   { userName, password },
   setError,
-  setLoginResponse,
+  setRegistrationResponse,
   setLoading
 ) => {
   const sessionId = getRandomInt(0, 20000000).toString();
-  const url = `/api/authentication/login?password=${password}&username=${userName}&sessionid=${sessionId}`;
+  const url = `/api/authentication/register?password=${password}&username=${userName}&sessionid=${sessionId}`;
 
   setLoading(true);
   fetch(url)
     .then(response => response.json())
     .then(json => {
-      setLoginResponse(json);
+      setRegistrationResponse(json);
       setLoading(false);
     })
     .catch(error => {
@@ -40,32 +41,33 @@ const login = (
     });
 };
 
-const showLoginResponse = loginResponse => {
-  if (!loginResponse) {
+const showRegistrationResponse = registrationResponse => {
+  if (!registrationResponse) {
     return <p />;
   }
 
-  return <>{loginResponse.message}</>;
+  return <>{registrationResponse.message}</>;
 };
 
-const Login = () => {
+const Registration = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [loginData, setLoginData] = useState({
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [registrationData, setRegistrationData] = useState({
     userName: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [loginResponse, setLoginResponse] = useState(null);
+  const [registrationResponse, setRegistrationResponse] = useState(null);
   useEffect(() => {
-    if (isValid(loginData)) {
-      login(loginData, setError, setLoginResponse, setLoading);
+    if (isValid(registrationData, confirmPassword)) {
+      register(registrationData, setError, setRegistrationResponse, setLoading);
     }
-  }, [loginData]);
+  }, [registrationData]);
 
   const onSubmit = () => {
-    setLoginData({ userName, password });
+    setRegistrationData({ userName, password });
   };
 
   if (error) {
@@ -88,12 +90,19 @@ const Login = () => {
         onChange={event => setPassword(event.target.value)}
       />
 
-      <Button value="Login" onClick={onSubmit} />
+      <Input
+        name="confirmPassword"
+        type="password"
+        label="Confirm password:"
+        onChange={event => setConfirmPassword(event.target.value)}
+      />
+
+      <Button value="Register" onClick={onSubmit} />
 
       <Loader loading={loading} />
-      {showLoginResponse(loginResponse)}
+      {showRegistrationResponse(registrationResponse)}
     </>
   );
 };
 
-export default Login;
+export default Registration;
