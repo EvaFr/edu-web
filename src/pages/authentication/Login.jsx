@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Error from '../../components/Error';
+import Input from '../../components/Input';
+import Button from '../../components/Button';
+import Loader from '../../components/Loader';
 
 export const getRandomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
@@ -17,17 +20,27 @@ const isValid = ({ userName, password }) => {
   return false;
 };
 
-const login = ({ userName, password }, setError, setLoginResponse) => {
+const login = (
+  { userName, password },
+  setError,
+  setLoginResponse,
+  setLoading
+) => {
   const sessionId = getRandomInt(0, 20000000).toString();
   const url = `/api/authentication/login?password=${password}&username=${userName}&sessionid=${sessionId}`;
 
+  setLoading(true);
   fetch(url)
     .then(response => response.json())
-    .then(json => setLoginResponse(json))
-    .catch(error => setError(error));
+    .then(json => {
+      setLoginResponse(json);
+      setLoading(false);
+    })
+    .catch(error => {
+      setError(error);
+      setLoading(false);
+    });
 };
-
-const showLoader = loading => (loading ? <p>Loading</p> : <p />);
 
 const showLoginResponse = loginResponse => {
   if (!loginResponse) {
@@ -49,9 +62,7 @@ const Login = () => {
   const [loginResponse, setLoginResponse] = useState(null);
   useEffect(() => {
     if (isValid(loginData)) {
-      setLoading(true);
-      login(loginData, setError, setLoginResponse);
-      setLoading(false);
+      login(loginData, setError, setLoginResponse, setLoading);
     }
   }, [loginData]);
 
@@ -65,27 +76,23 @@ const Login = () => {
 
   return (
     <>
-      <label htmlFor="userName">
-        User name:
-        <input
-          id="userName"
-          type="text"
-          onChange={event => setUserName(event.target.value)}
-        />
-      </label>
+      <Input
+        name="userName"
+        type="text"
+        label="User name:"
+        onChange={event => setUserName(event.target.value)}
+      />
 
-      <label htmlFor="password">
-        Password:
-        <input
-          id="password"
-          type="password"
-          onChange={event => setPassword(event.target.value)}
-        />
-      </label>
+      <Input
+        name="password"
+        type="password"
+        label="Password:"
+        onChange={event => setPassword(event.target.value)}
+      />
 
-      <input type="submit" onClick={onSubmit} />
+      <Button value="Login" onClick={onSubmit} />
 
-      {showLoader(loading)}
+      <Loader loading={loading} />
       {showLoginResponse(loginResponse)}
     </>
   );
