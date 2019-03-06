@@ -2,10 +2,17 @@ import React from 'react';
 import { BrowserRouter, Route, NavLink } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Welcome from './pages/welcome/Welcome';
 import Login from './pages/authentication/Login';
 import Registration from './pages/authentication/Registration';
 import Menu from './pages/menu/Menu';
+
+const mainPage = {
+  margin: '40px'
+};
 
 const App = () => {
   return (
@@ -25,10 +32,16 @@ const App = () => {
             </NavLink>
           </Nav>
         </Navbar>
-        <Route path="/" exact component={Welcome} />
-        <Route path="/login" component={Login} />
-        <Route path="/registration" component={Registration} />
-        <Route path="/book/:id" component={Menu} />
+        <Container style={mainPage}>
+          <Row>
+            <Col xs={12} md={8}>
+              <Route path="/" exact component={Welcome} />
+              <Route path="/login" component={Login} />
+              <Route path="/registration" component={Registration} />
+              <Route path="/book/:id" component={Menu} />
+            </Col>
+          </Row>
+        </Container>
       </>
     </BrowserRouter>
   );
