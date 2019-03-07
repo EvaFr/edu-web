@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import getRandomInt from './get-randomInt';
+import getRandomInt from '../../common/get-randomInt';
 import Error from '../../components/Error';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
