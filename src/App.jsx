@@ -59,7 +59,9 @@ const App = () => {
               <Route
                 path="/book/:book/:part/:page"
                 exact
-                component={ExercisePage}
+                render={routerProps => (
+                  <ExercisePage {...routerProps} sessionId={sessionId} />
+                )}
               />
             </Col>
           </Row>
