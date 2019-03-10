@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Loader from '../../components/Loader';
 import Error from '../../components/Error';
+import Button from '../../components/Button';
 
 const getPage = (
   sessionId,
@@ -31,8 +32,62 @@ const getPage = (
     });
 };
 
+const renderExercise = exercises => {
+  return exercises.map(exercise => {
+    switch (exercise.type) {
+      case 'definition':
+        return <p key={exercise.id}>{exercise.title}</p>;
+      case 'content':
+        return <p key={exercise.id}>{exercise.title}</p>;
+      case 'example':
+        return (
+          <div key={exercise.id}>
+            <h1>{exercise.title}</h1>
+            {exercise.LABELS.map(label => (
+              <div
+                key={label.id}
+                style={{
+                  position: 'relative',
+                  width: `${label.width}px`,
+                  height: `${label.height}px`
+                }}
+              >
+                {label.iLabels.map(iLabel => (
+                  <span
+                    key={iLabel.id}
+                    style={{
+                      fontSize: `${iLabel.fontSize}px`,
+                      left: `${iLabel.topLeftX}px`,
+                      position: 'absolute',
+                      top: `${iLabel.topLeftY}px`
+                    }}
+                  >
+                    {iLabel.value}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        );
+      default:
+        return JSON.stringify(exercise);
+    }
+  });
+};
+
 const renderPage = pageData => {
-  return <p>{JSON.stringify(pageData)}</p>;
+  if (!pageData) {
+    return <p />;
+  }
+
+  return (
+    <>
+      <Button onClick={() => {}} value="Previous page" />
+      <Button onClick={() => {}} value="Next page" />
+      <Button onClick={() => {}} value="Go to menu" />
+      {renderExercise(pageData.items)}
+    </>
+  );
 };
 
 const ExercisePage = ({ match, sessionId }) => {
