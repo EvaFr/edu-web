@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Loader from '../../components/Loader';
 import Error from '../../components/Error';
@@ -14,13 +15,32 @@ const getMenu = (sessionId, bookId, setLoading, setError, setMenuData) => {
   fetch(url)
     .then(response => response.json())
     .then(json => {
-      setMenuData(json);
+      setMenuData(json.parts);
       setLoading(false);
     })
     .catch(error => {
       setError(error);
       setLoading(false);
     });
+};
+
+const renderSubMenu = subMenuPoints => {
+  return subMenuPoints.map(subMenuPoint => (
+    <li key={subMenuPoint.id}>{subMenuPoint.TITLE}</li>
+  ));
+};
+
+const renderMainMenu = menuData => {
+  if (!menuData) {
+    return <p />;
+  }
+
+  return menuData.map(mainMenuPoint => (
+    <li key={mainMenuPoint.id}>
+      {mainMenuPoint.TITLE}
+      <ul>{renderSubMenu(mainMenuPoint.pages)}</ul>
+    </li>
+  ));
 };
 
 const Menu = ({ match, sessionId }) => {
@@ -35,7 +55,7 @@ const Menu = ({ match, sessionId }) => {
   return (
     <>
       <Loader loading={loading} />
-      {error ? <Error error={error} /> : <p>{JSON.stringify(menuData)}</p>}
+      {error ? <Error error={error} /> : <ul>{renderMainMenu(menuData)}</ul>}
     </>
   );
 };
