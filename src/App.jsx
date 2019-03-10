@@ -46,9 +46,14 @@ const App = () => {
               />
               <Route
                 path="/registration"
-                redner={() => <Registration setSessionId={setSessionId} />}
+                render={() => <Registration setSessionId={setSessionId} />}
               />
-              <Route path="/book/:id" component={Menu} />
+              <Route
+                path="/book/:id"
+                render={routerProps => (
+                  <Menu {...routerProps} sessionId={sessionId} />
+                )}
+              />
             </Col>
           </Row>
         </Container>
