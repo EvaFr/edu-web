@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import getRandomInt from '../../common/get-randomInt';
 import Error from '../../components/Error';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import Loader from '../../components/Loader';
 
-const isValid = ({ userName, password }, confirmPassword) => {
+const isValid = (userName, password, confirmPassword) => {
   if (
     userName != null &&
     userName.length > 0 &&
@@ -20,11 +20,17 @@ const isValid = ({ userName, password }, confirmPassword) => {
 };
 
 const register = (
-  { userName, password },
+  userName,
+  password,
+  confirmPassword,
   setError,
   setRegistrationResponse,
   setLoading
 ) => {
+  if (!isValid(userName, password, confirmPassword)) {
+    return;
+  }
+
   const sessionId = getRandomInt(0, 20000000).toString();
   const url = `/api/authentication/register?password=${password}&username=${userName}&sessionid=${sessionId}`;
 
@@ -53,22 +59,9 @@ const Registration = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [registrationData, setRegistrationData] = useState({
-    userName: '',
-    password: ''
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [registrationResponse, setRegistrationResponse] = useState(null);
-  useEffect(() => {
-    if (isValid(registrationData, confirmPassword)) {
-      register(registrationData, setError, setRegistrationResponse, setLoading);
-    }
-  }, [registrationData]);
-
-  const onSubmit = () => {
-    setRegistrationData({ userName, password });
-  };
 
   if (error) {
     return <Error error={error} />;
@@ -97,7 +90,19 @@ const Registration = () => {
         onChange={event => setConfirmPassword(event.target.value)}
       />
 
-      <Button value="Register" onClick={onSubmit} />
+      <Button
+        value="Register"
+        onClick={() =>
+          register(
+            userName,
+            password,
+            confirmPassword,
+            setError,
+            setRegistrationResponse,
+            setLoading
+          )
+        }
+      />
 
       <Loader loading={loading} />
       {showRegistrationResponse(registrationResponse)}

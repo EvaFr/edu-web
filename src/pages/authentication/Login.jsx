@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
 import getRandomInt from '../../common/get-randomInt';
 import Error from '../../components/Error';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import Loader from '../../components/Loader';
+import { updateUser } from '../../common/session-manager';
 
-const isValid = ({ userName, password }) => {
+const isValid = (userName, password) => {
   if (
     userName != null &&
     userName.length > 0 &&
@@ -19,11 +22,17 @@ const isValid = ({ userName, password }) => {
 };
 
 const login = (
-  { userName, password },
+  userName,
+  password,
   setError,
   setLoginResponse,
-  setLoading
+  setLoading,
+  setSessionId
 ) => {
+  if (!isValid(userName, password)) {
+    return;
+  }
+
   const sessionId = getRandomInt(0, 20000000).toString();
   const url = `/api/authentication/login?password=${password}&username=${userName}&sessionid=${sessionId}`;
 
@@ -31,10 +40,18 @@ const login = (
   fetch(url)
     .then(response => response.json())
     .then(json => {
-      setLoginResponse(json);
+      if (json.message === 'OK') {
+        updateUser(userName, sessionId, false);
+        setSessionId(sessionId);
+      } else {
+        setSessionId(null);
+      }
+
       setLoading(false);
+      setLoginResponse(json);
     })
     .catch(error => {
+      updateUser('', undefined, false);
       setError(error);
       setLoading(false);
     });
@@ -48,25 +65,15 @@ const showLoginResponse = loginResponse => {
   return <>{loginResponse.message}</>;
 };
 
-const Login = () => {
-  const [userName, setUserName] = useState('');
+const Login = ({ setSessionId, userName, setUserName }) => {
   const [password, setPassword] = useState('');
-  const [loginData, setLoginData] = useState({
-    userName: '',
-    password: ''
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loginResponse, setLoginResponse] = useState(null);
-  useEffect(() => {
-    if (isValid(loginData)) {
-      login(loginData, setError, setLoginResponse, setLoading);
-    }
-  }, [loginData]);
 
-  const onSubmit = () => {
-    setLoginData({ userName, password });
-  };
+  if (loginResponse && loginResponse.message === 'OK') {
+    return <Redirect to="/" />;
+  }
 
   if (error) {
     return <Error error={error} />;
@@ -88,12 +95,34 @@ const Login = () => {
         onChange={event => setPassword(event.target.value)}
       />
 
-      <Button value="Login" onClick={onSubmit} />
+      <Button
+        value="Login"
+        onClick={() =>
+          login(
+            userName,
+            password,
+            setError,
+            setLoginResponse,
+            setLoading,
+            setSessionId
+          )
+        }
+      />
 
       <Loader loading={loading} />
       {showLoginResponse(loginResponse)}
     </>
   );
+};
+
+Login.propTypes = {
+  setSessionId: PropTypes.func.isRequired,
+  userName: PropTypes.string,
+  setUserName: PropTypes.func.isRequired
+};
+
+Login.defaultProps = {
+  userName: ''
 };
 
 export default Login;

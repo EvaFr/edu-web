@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
@@ -15,19 +15,39 @@ const mainPage = {
 };
 
 const App = () => {
+  const [sessionId, setSessionId] = useState(null);
+  const [userName, setUserName] = useState('');
+
   return (
     <BrowserRouter>
       <>
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="/">Mathpractice</Navbar.Brand>
-          <UserHeader />
+          <UserHeader
+            sessionId={sessionId}
+            setSessionId={setSessionId}
+            userName={userName}
+            setUserName={setUserName}
+          />
         </Navbar>
         <Container style={mainPage}>
           <Row>
             <Col xs={12} md={8}>
               <Route path="/" exact component={Welcome} />
-              <Route path="/login" component={Login} />
-              <Route path="/registration" component={Registration} />
+              <Route
+                path="/login"
+                render={() => (
+                  <Login
+                    setSessionId={setSessionId}
+                    userName={userName}
+                    setUserName={setUserName}
+                  />
+                )}
+              />
+              <Route
+                path="/registration"
+                redner={() => <Registration setSessionId={setSessionId} />}
+              />
               <Route path="/book/:id" component={Menu} />
             </Col>
           </Row>
