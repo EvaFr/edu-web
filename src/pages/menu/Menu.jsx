@@ -24,13 +24,17 @@ const getMenu = (sessionId, bookId, setLoading, setError, setMenuData) => {
     });
 };
 
-const renderSubMenu = subMenuPoints => {
-  return subMenuPoints.map(subMenuPoint => (
-    <li key={subMenuPoint.id}>{subMenuPoint.TITLE}</li>
+const renderSubMenu = (mainMenuPoint, bookId) => {
+  return mainMenuPoint.pages.map(subMenuPoint => (
+    <li key={subMenuPoint.id}>
+      <Link to={`/book/${bookId}/${mainMenuPoint.id}/${subMenuPoint.id}`}>
+        {subMenuPoint.TITLE}
+      </Link>
+    </li>
   ));
 };
 
-const renderMainMenu = menuData => {
+const renderMainMenu = (menuData, bookId) => {
   if (!menuData) {
     return <p />;
   }
@@ -38,7 +42,7 @@ const renderMainMenu = menuData => {
   return menuData.map(mainMenuPoint => (
     <li key={mainMenuPoint.id}>
       {mainMenuPoint.TITLE}
-      <ul>{renderSubMenu(mainMenuPoint.pages)}</ul>
+      <ul>{renderSubMenu(mainMenuPoint, bookId)}</ul>
     </li>
   ));
 };
@@ -49,13 +53,17 @@ const Menu = ({ match, sessionId }) => {
   const [menuData, setMenuData] = useState(null);
 
   useEffect(() => {
-    getMenu(sessionId, match.params.id, setLoading, setError, setMenuData);
+    getMenu(sessionId, match.params.book, setLoading, setError, setMenuData);
   }, [sessionId]);
 
   return (
     <>
       <Loader loading={loading} />
-      {error ? <Error error={error} /> : <ul>{renderMainMenu(menuData)}</ul>}
+      {error ? (
+        <Error error={error} />
+      ) : (
+        <ul>{renderMainMenu(menuData, match.params.book)}</ul>
+      )}
     </>
   );
 };
@@ -63,7 +71,7 @@ const Menu = ({ match, sessionId }) => {
 Menu.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
-      id: PropTypes.node
+      book: PropTypes.node
     })
   }).isRequired,
   sessionId: PropTypes.string

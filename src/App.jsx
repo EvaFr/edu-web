@@ -9,6 +9,7 @@ import Login from './pages/authentication/Login';
 import Registration from './pages/authentication/Registration';
 import Menu from './pages/menu/Menu';
 import UserHeader from './components/UserHeader';
+import ExercisePage from './pages/page/ExercisePage';
 
 const mainPage = {
   margin: '40px'
@@ -49,10 +50,16 @@ const App = () => {
                 render={() => <Registration setSessionId={setSessionId} />}
               />
               <Route
-                path="/book/:id"
+                path="/book/:book"
+                exact
                 render={routerProps => (
                   <Menu {...routerProps} sessionId={sessionId} />
                 )}
+              />
+              <Route
+                path="/book/:book/:part/:page"
+                exact
+                component={ExercisePage}
               />
             </Col>
           </Row>
